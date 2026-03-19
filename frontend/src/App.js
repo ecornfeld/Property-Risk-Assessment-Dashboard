@@ -674,6 +674,7 @@ function DashboardPages({ token, user, setUser, isAuthenticated, onShowAuth, onL
             <button className={`header-nav-link${navPage === 'pricing' ? ' active' : ''}`} onClick={() => setNavPage(navPage === 'pricing' ? null : 'pricing')}>Pricing</button>
             <button className={`header-nav-link${navPage === 'faq' ? ' active' : ''}`} onClick={() => setNavPage(navPage === 'faq' ? null : 'faq')}>FAQ</button>
             <button className={`header-nav-link${navPage === 'contact' ? ' active' : ''}`} onClick={() => setNavPage(navPage === 'contact' ? null : 'contact')}>Contact</button>
+            <button className={`header-nav-link${navPage === 'demo' ? ' active' : ''}`} onClick={() => setNavPage(navPage === 'demo' ? null : 'demo')}>Sample Reports</button>
           </nav>
         </div>
         <div className="user-info">
@@ -735,6 +736,53 @@ function DashboardPages({ token, user, setUser, isAuthenticated, onShowAuth, onL
       {navPage === 'pricing' && <PricingPage onShowAuth={onShowAuth} isAuthenticated={isAuthenticated} credits={credits} onBuyCredits={openBuyCreditsModal} onContact={() => setNavPage('contact')} />}
       {navPage === 'faq' && <FaqPage onContact={() => setNavPage('contact')} />}
       {navPage === 'contact' && <ContactPage />}
+      {navPage === 'demo' && (
+        <div className="tab-content">
+          <div className="demo-intro">
+            <h3>Sample Reports</h3>
+            <p>These are real PropertyLens assessments for addresses across the US covering a range of risk profiles. Click any row to see the full report. <button className="link-button" onClick={() => onShowAuth('signup')}>Create a free account</button> to run your own.</p>
+          </div>
+          {demoResults.length === 0 ? (
+            <p className="no-results">No sample reports available.</p>
+          ) : (
+            <div className="bulk-table-wrap">
+              <table className="bulk-table">
+                <thead>
+                  <tr>
+                    <th className="bulk-th-address">Address</th>
+                    <th className="bulk-th-risk">Risk</th>
+                    <th className="bulk-th-hz">Fire</th>
+                    <th className="bulk-th-hz">Flood</th>
+                    <th className="bulk-th-hz">Quake</th>
+                    <th className="bulk-th-hz">Hurricane</th>
+                    <th className="bulk-th-hz">Tornado</th>
+                    <th className="bulk-th-hz">Hail</th>
+                    <th className="bulk-th-hz">Crime</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {demoResults.map((r, i) => (
+                    <tr key={i} className="bulk-row" style={{ cursor: 'pointer' }} onClick={() => setSelectedDemoResult(r)}>
+                      <td className="bulk-td-address">
+                        <span className="bulk-addr-primary">{r.address}</span>
+                      </td>
+                      <td><span className={`risk-badge risk-badge--${(r.overall?.riskLevel||'').toLowerCase()}`}>{r.overall?.riskLevel || '—'}</span></td>
+                      <td><HazardGrade grade={r.natural?.wildfire?.grade} /></td>
+                      <td><HazardGrade grade={r.natural?.flood?.grade} /></td>
+                      <td><HazardGrade grade={r.natural?.earthquake?.grade} /></td>
+                      <td><HazardGrade grade={r.natural?.hurricane?.grade} /></td>
+                      <td><HazardGrade grade={r.natural?.tornado?.grade} /></td>
+                      <td><HazardGrade grade={r.natural?.hail?.grade} /></td>
+                      <td><HazardGrade grade={r.human?.crime?.grade} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <AssessmentModal r={selectedDemoResult} onClose={() => setSelectedDemoResult(null)} />
+        </div>
+      )}
 
       {!navPage && <><div className="tabs">
         <button
@@ -754,12 +802,6 @@ function DashboardPages({ token, user, setUser, isAuthenticated, onShowAuth, onL
           onClick={() => setActiveTab('history')}
         >
           History ({history.length})
-        </button>
-        <button
-          className={activeTab === 'demo' ? 'active' : ''}
-          onClick={() => setActiveTab('demo')}
-        >
-          Sample Reports
         </button>
       </div>
 
@@ -1097,54 +1139,6 @@ function DashboardPages({ token, user, setUser, isAuthenticated, onShowAuth, onL
           <AssessmentModal r={selectedHistoryResult} onClose={() => setSelectedHistoryResult(null)} />
           </>
           )}
-        </div>
-      )}
-
-      {activeTab === 'demo' && (
-        <div className="tab-content">
-          <div className="demo-intro">
-            <h3>Sample Reports</h3>
-            <p>These are real PropertyLens assessments for addresses across the US covering a range of risk profiles. Click any row to see the full report. <button className="link-button" onClick={() => onShowAuth('signup')}>Create a free account</button> to run your own.</p>
-          </div>
-          {demoResults.length === 0 ? (
-            <p className="no-results">No sample reports available.</p>
-          ) : (
-            <div className="bulk-table-wrap">
-              <table className="bulk-table">
-                <thead>
-                  <tr>
-                    <th className="bulk-th-address">Address</th>
-                    <th className="bulk-th-risk">Risk</th>
-                    <th className="bulk-th-hz">Fire</th>
-                    <th className="bulk-th-hz">Flood</th>
-                    <th className="bulk-th-hz">Quake</th>
-                    <th className="bulk-th-hz">Hurricane</th>
-                    <th className="bulk-th-hz">Tornado</th>
-                    <th className="bulk-th-hz">Hail</th>
-                    <th className="bulk-th-hz">Crime</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {demoResults.map((r, i) => (
-                    <tr key={i} className="bulk-row" style={{ cursor: 'pointer' }} onClick={() => setSelectedDemoResult(r)}>
-                      <td className="bulk-td-address">
-                        <span className="bulk-addr-primary">{r.address}</span>
-                      </td>
-                      <td><span className={`risk-badge risk-badge--${(r.overall?.riskLevel||'').toLowerCase()}`}>{r.overall?.riskLevel || '—'}</span></td>
-                      <td><HazardGrade grade={r.natural?.wildfire?.grade} /></td>
-                      <td><HazardGrade grade={r.natural?.flood?.grade} /></td>
-                      <td><HazardGrade grade={r.natural?.earthquake?.grade} /></td>
-                      <td><HazardGrade grade={r.natural?.hurricane?.grade} /></td>
-                      <td><HazardGrade grade={r.natural?.tornado?.grade} /></td>
-                      <td><HazardGrade grade={r.natural?.hail?.grade} /></td>
-                      <td><HazardGrade grade={r.human?.crime?.grade} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          <AssessmentModal r={selectedDemoResult} onClose={() => setSelectedDemoResult(null)} />
         </div>
       )}
 
