@@ -1,0 +1,3 @@
+ALTER TABLE assessments
+  ADD COLUMN IF NOT EXISTS zone_subtype VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS flood_depth NUMERIC;
