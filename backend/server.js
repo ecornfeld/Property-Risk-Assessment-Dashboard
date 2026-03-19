@@ -62,7 +62,7 @@ const bulkWorker = new Worker('bulk-assessments', async (job) => {
 
 bulkWorker.on('failed', (job, err) => console.error(`Bulk job ${job.id} failed:`, err.message));
 
-const GOOGLE_MAPS_API_KEY = 'REDACTED';
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 
 // Database connection
