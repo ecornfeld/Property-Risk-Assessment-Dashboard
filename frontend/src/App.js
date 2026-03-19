@@ -314,6 +314,15 @@ function DashboardPages({ token, user, setUser, isAuthenticated, onShowAuth, onL
   const [toDate, setToDate] = useState('');
   const [toTime, setToTime] = useState('');
   const [addressSearch, setAddressSearch] = useState('');
+  const [demoResults, setDemoResults] = useState([]);
+  const [selectedDemoResult, setSelectedDemoResult] = useState(null);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/demo')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.demos) setDemoResults(data.demos); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) setShowProfileMenu(false);
@@ -675,6 +684,12 @@ function DashboardPages({ token, user, setUser, isAuthenticated, onShowAuth, onL
             </div>
           ) : (
           <div className="profile-wrap">
+            {credits !== null && (
+              <button className="header-credits-pill" onClick={openBuyCreditsModal}>
+                <span className="header-credits-icon">⚡</span>
+                <span>{credits} credit{credits !== 1 ? 's' : ''}</span>
+              </button>
+            )}
             <button className="profile-btn" onClick={() => setShowProfileMenu(v => !v)}>
               <span className="profile-avatar">
                 {[user?.firstName?.[0], user?.lastName?.[0]].filter(Boolean).join('').toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
@@ -728,17 +743,23 @@ function DashboardPages({ token, user, setUser, isAuthenticated, onShowAuth, onL
         >
           Assess Risk
         </button>
-        <button 
-          className={activeTab === 'bulk' ? 'active' : ''} 
+        <button
+          className={activeTab === 'bulk' ? 'active' : ''}
           onClick={() => setActiveTab('bulk')}
         >
           Bulk Upload
         </button>
-        <button 
-          className={activeTab === 'history' ? 'active' : ''} 
+        <button
+          className={activeTab === 'history' ? 'active' : ''}
           onClick={() => setActiveTab('history')}
         >
           History ({history.length})
+        </button>
+        <button
+          className={activeTab === 'demo' ? 'active' : ''}
+          onClick={() => setActiveTab('demo')}
+        >
+          Sample Reports
         </button>
       </div>
 
@@ -1076,6 +1097,54 @@ function DashboardPages({ token, user, setUser, isAuthenticated, onShowAuth, onL
           <AssessmentModal r={selectedHistoryResult} onClose={() => setSelectedHistoryResult(null)} />
           </>
           )}
+        </div>
+      )}
+
+      {activeTab === 'demo' && (
+        <div className="tab-content">
+          <div className="demo-intro">
+            <h3>Sample Reports</h3>
+            <p>These are real PropertyLens assessments for addresses across the US covering a range of risk profiles. Click any row to see the full report. <button className="link-button" onClick={() => onShowAuth('signup')}>Create a free account</button> to run your own.</p>
+          </div>
+          {demoResults.length === 0 ? (
+            <p className="no-results">No sample reports available.</p>
+          ) : (
+            <div className="bulk-table-wrap">
+              <table className="bulk-table">
+                <thead>
+                  <tr>
+                    <th className="bulk-th-address">Address</th>
+                    <th className="bulk-th-risk">Risk</th>
+                    <th className="bulk-th-hz">Fire</th>
+                    <th className="bulk-th-hz">Flood</th>
+                    <th className="bulk-th-hz">Quake</th>
+                    <th className="bulk-th-hz">Hurricane</th>
+                    <th className="bulk-th-hz">Tornado</th>
+                    <th className="bulk-th-hz">Hail</th>
+                    <th className="bulk-th-hz">Crime</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {demoResults.map((r, i) => (
+                    <tr key={i} className="bulk-row" style={{ cursor: 'pointer' }} onClick={() => setSelectedDemoResult(r)}>
+                      <td className="bulk-td-address">
+                        <span className="bulk-addr-primary">{r.address}</span>
+                      </td>
+                      <td><span className={`risk-badge risk-badge--${(r.overall?.riskLevel||'').toLowerCase()}`}>{r.overall?.riskLevel || '—'}</span></td>
+                      <td><HazardGrade grade={r.natural?.wildfire?.grade} /></td>
+                      <td><HazardGrade grade={r.natural?.flood?.grade} /></td>
+                      <td><HazardGrade grade={r.natural?.earthquake?.grade} /></td>
+                      <td><HazardGrade grade={r.natural?.hurricane?.grade} /></td>
+                      <td><HazardGrade grade={r.natural?.tornado?.grade} /></td>
+                      <td><HazardGrade grade={r.natural?.hail?.grade} /></td>
+                      <td><HazardGrade grade={r.human?.crime?.grade} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <AssessmentModal r={selectedDemoResult} onClose={() => setSelectedDemoResult(null)} />
         </div>
       )}
 
