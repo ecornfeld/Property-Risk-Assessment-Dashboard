@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const https = require('https');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -28,6 +29,9 @@ redis.on('error', (err) => console.error('Redis error:', err));
 redis.connect().then(() => console.log('Redis connected')).catch(console.error);
 
 const CACHE_TTL_SECONDS = 60 * 60 * 24 * 90; // 90 days
+
+// Persistent HTTPS agent — reuses TCP/TLS connections across requests instead of re-handshaking each time
+const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 20 });
 
 // BullMQ — uses its own ioredis-compatible connection config (separate from node-redis client)
 const bullRedisOpts = { url: process.env.REDIS_URL || 'redis://localhost:6379' };
@@ -326,7 +330,7 @@ async function getPropertyLensToken() {
     return _plToken;
   }
 
-  const res = await axios.post(`${baseUrl}/authenticate/`, { client_id: clientId, client_secret: clientSecret }, { timeout: 10000 });
+  const res = await axios.post(`${baseUrl}/authenticate/`, { client_id: clientId, client_secret: clientSecret }, { timeout: 10000, httpsAgent });
   _plToken = res.data.access_token;
   _plTokenExpiry = Date.now() + (res.data.expires_in * 1000);
   return _plToken;
@@ -341,7 +345,8 @@ async function getPropertyLensData(address) {
     const response = await axios.get(`${baseUrl}/property-insights/address`, {
       params: { address },
       headers: { 'Authorization': `Bearer ${token}` },
-      timeout: 20000
+      timeout: 20000,
+      httpsAgent
     });
     logAPIUsage('PropertyLens', 2.70);
     return response.data;
@@ -381,7 +386,8 @@ async function geocodeAddress(address) {
           address: address,
           key: GOOGLE_MAPS_API_KEY,
           components: 'country:US'
-        }
+        },
+        httpsAgent
       }
     );
 
@@ -455,7 +461,8 @@ app.get('/api/autocomplete', async (req, res) => {
         headers: {
           'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
           'Content-Type': 'application/json'
-        }
+        },
+        httpsAgent
       }
     );
 
@@ -551,15 +558,17 @@ async function assessSingleAddress(userId, address) {
   const inputAddress = address?.trim();
   if (!inputAddress) throw new Error('Address is required');
 
-  const credits = await getCredits(userId);
+  // Run credit check and geocoding in parallel — they're independent
+  const [credits, geocoded] = await Promise.all([
+    getCredits(userId),
+    geocodeAddress(inputAddress)
+  ]);
+
   if (credits <= 0) {
     const err = new Error('No credits remaining. Purchase more credits to continue.');
     err.noCredits = true;
     throw err;
   }
-
-  // Geocode first (Redis-cached) to get a normalized formatted address for cache lookup
-  const geocoded = await geocodeAddress(inputAddress);
   let cached = await getCachedRiskData(geocoded.formattedAddress);
   let plData;
 
