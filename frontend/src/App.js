@@ -1179,7 +1179,7 @@ function AboutPage() {
     <div className="nav-page">
       <div className="nav-page-content">
         <h2>About FlashRisk</h2>
-        <p>FlashRisk is a property hazard intelligence tool built for insurers, lenders, real estate professionals, and analysts. Type in any US address and get back letter grades and risk ratings across 20+ hazard categories covering natural hazards, crime, environmental quality, and neighborhood resilience. Results come back in seconds and export to CSV or Excel with one click.</p>
+        <p>FlashRisk is a property risk intelligence tool powered by PropertyLens data. Type in any US address and get back letter grades and risk ratings across 20+ hazard categories — natural hazards, crime, environmental quality, and neighborhood resilience — all from a single source. Results come back in seconds and export to CSV or Excel with one click.</p>
 
         <div className="about-value-row about-value-row--wide">
           <div className="about-value-card">
@@ -1188,7 +1188,7 @@ function AboutPage() {
           </div>
           <div className="about-value-card">
             <h3><span className="about-value-icon">⚡</span> One address, everything you need</h3>
-            <p>Instead of pulling from multiple platforms and stitching things together manually, one address search covers everything. For portfolios, upload a CSV or Excel file and get enriched results back in minutes. No manual lookups, no data wrangling.</p>
+            <p>PropertyLens aggregates hazard, crime, environmental, and neighborhood data into a single model. One address search through FlashRisk pulls all of it at once. For portfolios, upload a CSV or Excel file and get enriched results back in minutes — no manual lookups, no stitching together sources.</p>
           </div>
           <div className="about-value-card">
             <h3><span className="about-value-icon">🗺️</span> Neighborhood context included</h3>
@@ -1203,7 +1203,7 @@ function AboutPage() {
         <div className="about-builder">
           <h3>From the builder</h3>
           <p>I've spent 4+ years as a data engineer in P&amp;C insurance, working across risk, underwriting, and data pipelines. The same problem kept coming up: property-level hazard data existed but underwriters and ops teams had no fast, reliable way to get it into their actual workflows. That gap quietly degraded the data that business and analytics teams depended on.</p>
-          <p>FlashRisk is the tool I kept wishing existed. The hazard data is available, the fields are well understood, and the decisions that depend on them are real. What was missing was a clean interface that pulls it all together without the enterprise contract, the IT setup, or the six-figure price tag.</p>
+          <p>FlashRisk is the tool I kept wishing existed. PropertyLens has the data: hazard grades, crime, environmental quality, and neighborhood factors, all modeled and normalized across every US address. What was missing was a clean interface that puts it in front of the people who actually need it, without the enterprise contract, the IT setup, or the six-figure price tag.</p>
         </div>
 
       </div>
@@ -1346,11 +1346,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Where does the data come from?',
-    a: 'FlashRisk sources its property hazard data through PropertyLens, a specialized data provider that aggregates, models, and normalizes hazard information across the US. PropertyLens combines data from multiple public and proprietary sources into a consistent grading model. The grades and ratings you see in FlashRisk reflect that model, not a direct pull from any single government database.'
+    a: 'All hazard data in FlashRisk comes from PropertyLens, a specialized provider that aggregates, models, and normalizes property risk information across the US. PropertyLens combines public and proprietary sources into a consistent grading system that covers every US address. The grades and ratings you see reflect that model, not a direct pull from any single government database.'
   },
   {
     q: 'How accurate is the data?',
-    a: 'PropertyLens builds and maintains its hazard models using a combination of publicly available data and proprietary modeling. Grades are designed to be consistent and comparable across US addresses. That said, no model is perfect. Results reflect the best available data for a given location and should be used as one input in a broader decision process, not as a sole determinant.'
+    a: 'PropertyLens builds and maintains its hazard models using a combination of public data and proprietary modeling. Grades are consistent and comparable across any US address, which makes them useful for comparing properties side by side. That said, no model is perfect. Results should be used as one input in a broader decision process, not as a sole determinant.'
   },
   {
     q: 'What counts as one assessment?',
